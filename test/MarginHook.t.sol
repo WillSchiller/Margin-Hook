@@ -50,7 +50,7 @@ contract TestMarginHook is Test, Deployers {
             currency0,
             currency1,
             hook,
-            3000, // Set the `DYNAMIC_FEE_FLAG` in place of specifying a fixed fee
+            3000, 
             SQRT_PRICE_1_1,
             ZERO_BYTES
         );
@@ -73,10 +73,13 @@ contract TestMarginHook is Test, Deployers {
         bool zeroForOne =  true;
         int256 amountSpecified = 1 ether;
 
-  
+        int256 leverageAmount = 5;
+        bool leverage = true;
+        bytes memory hookData = abi.encode(leverageAmount,leverage);
+
 
         // Call beforeSwap
-        Deployers.swap(key, zeroForOne, amountSpecified, new bytes(0));
+        Deployers.swap(key, zeroForOne, amountSpecified, hookData);
     }
 
 
