@@ -9,3 +9,11 @@ evm_version = "cancun"  # hard fork that enabled EIP-1153
 optimizer_runs = 800
 via_ir = false
 ffi = true
+
+[rpc_endpoints]
+base = "https://mainnet.base.org"
+sepolia = "https://sepolia.base.org"
+
+[etherscan]
+sepolia = { key = "MM7S3N3DFYEH8NXDRAFI32M6RVIAII7RKG", url = "https://api-sepolia.basescan.org/api" }
+base = { key = "MM7S3N3DFYEH8NXDRAFI32M6RVIAII7RKG", url = "https://api.basescan.org/api" }

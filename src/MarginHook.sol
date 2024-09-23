@@ -56,75 +56,7 @@ contract MarginHook is BaseHook {
         ) external override returns (bytes4, BeforeSwapDelta, uint24) {
             (int256 leverageAmount, bool leverage) = abi.decode(hookData, (int, bool));
             if(!(leverageAmount >= 1 && leverageAmount <= 5)) {revert leverageNotInRange();}
-            if(leverageAmount != 1 && leverage == true) {
-                // current tick price
-                (, int24 currentTick, , ) = poolManager.getSlot0(key.toId());
-                // get real price
-                uint160 sqrtPriceX96 = TickMath.getSqrtPriceAtTick(currentTick);
-                uint256 price = uint256(sqrtPriceX96) ** 2 / (2 ** 192);
-
-                uint256 loanAmount = leverageAmount -1; 
-                uint256 swapAmount;
-                // Will likely be all sorts of rounding errors here: Not for production
-                //Borrow Token0
-                if(swapParams.zeroForOne == true) {
-                    if(swapParams.exactInputForOutput == true) {
-                        swapAmount = SwapParams.amountSpecified * loanAmount;
-                    } else {
-                        swapAmount = (price / SwapParams.amountSpecified) * loanAmount;
-                    }
-                } else {
-                //Borrow Token1
-                    if(swapParams.exactInputForOutput == true) {
-                        swapAmount = SwapParams.amountSpecified * loanAmount;
-                    } else {
-                        (price / SwapParams.amountSpecified) * loanAmount;
-                    }
-                    swapAmount = SwapParams.amountSpecified * loanAmount
-            
-                            //SwapParams.amountSpecified
-                
-                /*
-                                 Token0                Token1
-                                    |                     getSlot0|
-                                    |                     |
-                                    v                     v
-                    +----------------+---------------------+
-                    |                |                     |
-                    |  1 zeroToOne   |   exactInputForOutput
-                    |                | ------------------>
-                    |                |                     |
-                    |  2 zeroToOne   |   exactOutputForInput
-                    |                | ------------------>
-                    |                |                     |
-                    |  3 oneToZero   |   exactInputForOutput
-                    |                | <------------------
-                    |                |                     |
-                    |  4 oneToZero   |   exactOutputForInput
-                    |                | <------------------
-                    |                |                     |
-                    +----------------+---------------------+
-
-                Borrow 0
-                1. SwapParams.amountSpecified * (leverageAmount)
-                2. (price / SwapParams.amountSpecified) * leverageAmount
-                Borrow 1
-                3. SwapParams.amountSpecified * leverageAmount
-                4. (price / SwapParams.amountSpecified) * leverageAmount
-
-                
-
-
-
-                For 5X leverage
-                I have USD 10 USD which will be swapped
-                Take swap amount (10) X 4 = 40
-                Buy 40 worth of ether (leverage false)
-                Keep the Ether in Hook
-                Update position
-                */
-
-            }
+         
             disableLeverage = true;
 
 
@@ -135,6 +67,7 @@ contract MarginHook is BaseHook {
             BeforeSwapDelta beforeSwapDelta = toBeforeSwapDelta(0, 0);
             return (this.beforeSwap.selector, beforeSwapDelta, 0);
         }
+        
  
         function afterSwap(
             address,
@@ -150,10 +83,8 @@ contract MarginHook is BaseHook {
             return (this.afterSwap.selector, 0);
         }
 
-    
+}
 
 
 
-
-} 
 
