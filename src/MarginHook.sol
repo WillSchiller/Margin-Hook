@@ -7,18 +7,14 @@ import {IPoolManager} from "v4-core/interfaces/IPoolManager.sol";
 import {PoolKey} from "v4-core/types/PoolKey.sol";
 import {StateLibrary} from "v4-core/libraries/StateLibrary.sol";
 import {TickMath} from "v4-core/libraries/TickMath.sol";
-
-
-import {BeforeSwapDelta, toBeforeSwapDelta} from "v4-core/types/BeforeSwapDelta.sol";
-import {BalanceDeltaLibrary, BalanceDelta} from "v4-core/types/BalanceDelta.sol";
+import {BalanceDelta} from "v4-core/types/BalanceDelta.sol";
 
 contract MarginHook is BaseHook {
     using StateLibrary for IPoolManager;
+    
 
     // convert to transient storage later
-    bool disableLeverage; 
-    uint256 currentTickPrice;
-
+    int24 currentTick;
     error leverageNotInRange();
 
     constructor(IPoolManager _poolManager) BaseHook(_poolManager) {}
@@ -37,36 +33,17 @@ contract MarginHook is BaseHook {
                     beforeRemoveLiquidity: false,
                     afterAddLiquidity: false,
                     afterRemoveLiquidity: false,
-                    beforeSwap: true,
+                    beforeSwap: false,
                     afterSwap: true,
                     beforeDonate: false,
                     afterDonate: false,
-                    beforeSwapReturnDelta: true,
-                    afterSwapReturnDelta: true,
+                    beforeSwapReturnDelta: false,
+                    afterSwapReturnDelta: false,
                     afterAddLiquidityReturnDelta: false,
                     afterRemoveLiquidityReturnDelta: false
                 });
         }
 
-        function beforeSwap(
-            address,
-            PoolKey calldata key,
-            IPoolManager.SwapParams calldata swapParams,
-            bytes calldata hookData
-        ) external override returns (bytes4, BeforeSwapDelta, uint24) {
-            (int256 leverageAmount, bool leverage) = abi.decode(hookData, (int, bool));
-            if(!(leverageAmount >= 1 && leverageAmount <= 5)) {revert leverageNotInRange();}
-         
-            disableLeverage = true;
-
-
-            
-
-
-
-            BeforeSwapDelta beforeSwapDelta = toBeforeSwapDelta(0, 0);
-            return (this.beforeSwap.selector, beforeSwapDelta, 0);
-        }
         
  
         function afterSwap(
@@ -76,10 +53,8 @@ contract MarginHook is BaseHook {
             BalanceDelta delta,
             bytes calldata hookData
         ) external override returns (bytes4, int128) {
-            /*
-            Normal swap for 10USD happened but keep the claim tokens
-
-            */
+            // Here we get the current tick price
+                   (,currentTick, , ) = poolManager.getSlot0(key.toId());
             return (this.afterSwap.selector, 0);
         }
 

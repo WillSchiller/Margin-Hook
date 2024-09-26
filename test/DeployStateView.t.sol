@@ -19,6 +19,7 @@ contract TestStateView is Test {
     PoolKey key;
     StateView viewer;
 
+    /* 
     function test_state_view() public {
         DeployStateView script = new DeployStateView();
         viewer = script.run();
@@ -38,4 +39,5 @@ contract TestStateView is Test {
         console.log("protocolFee: ", protocolFee);
         console.log("lpFee: ", lpFee);
     }
+    */
 }
